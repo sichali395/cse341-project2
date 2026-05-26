@@ -1,15 +1,27 @@
-require('dotenv').config(); // <-- This MUST be line 1
-const dns = require('node:dns'); // Line 2
-dns.setServers(['1.1.1.1', '8.8.8.8']); // Line 3 - Forces Node to bypass local ISP blocks
+require('dotenv').config();
+const dns = require('node:dns');
+dns.setServers(['1.1.1.1', '8.8.8.8']);
+
 const express = require('express');
+const session = require('express-session');
+const passport = require('passport');
 const app = express();
-const mongodb = require('./db/connect'); // <-- This MUST come after dotenv
+const mongodb = require('./db/connect');
 const port = process.env.PORT || 8080;
 
-// Parse incoming JSON payloads
 app.use(express.json());
 
-// Set loose CORS policy headers for external rendering tools
+// Session storage initialization configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Initialize Passport tracking states
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Z-Key');
@@ -17,10 +29,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Centralized application router connection point
 app.use('/', require('./routes'));
 
-// Global Error Handling Middleware (returns 400 or 500 status on execution crash)
 app.use((err, req, res, next) => {
   const status = err.status || 500;
   res.status(status).json({
@@ -29,7 +39,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Initialize connection with MongoDB Cluster and spin up application environment listener
 mongodb.initDb((err) => {
   if (err) {
     console.log('Database verification failed:', err);

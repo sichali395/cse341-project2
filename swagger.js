@@ -3,9 +3,9 @@ const swaggerAutogen = require('swagger-autogen')();
 const doc = {
   info: {
     title: 'Movies & Reviews Media API',
-    description: 'CSE341 Project 2 Part 1 CRUD Operations and Middleware Validation.'
+    description: 'CSE341 Project 2 Part 2 CRUD Operations with OAuth Security integrations.'
   },
-  host: process.env.RENDER_EXTERNAL_URL ? process.env.RENDER_EXTERNAL_URL.replace(/^https?:\/\//, '') : 'localhost:8080', // Auto-switches on Render
+  host: process.env.RENDER_EXTERNAL_URL ? process.env.RENDER_EXTERNAL_URL.replace(/^https?:\/\//, '') : 'localhost:8080',
   schemes: ['https', 'http']
 };
 
