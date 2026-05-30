@@ -2,10 +2,15 @@ const router = require('express').Router();
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('../swagger.json');
 
-// Serves the interactive Swagger UI interface assets
-router.use('/', swaggerUi.serve);
+// This middleware intercepts the swagger document and fixes the host link dynamically
+router.use('/', (req, res, next) => {
+  // If running on Render, use the Render host link; otherwise fallback to localhost
+  swaggerDocument.host = req.get('host'); 
+  req.swaggerDoc = swaggerDocument;
+  next();
+});
 
-// Configures Swagger UI to parse the compiled swagger.json document
-router.get('/', swaggerUi.setup(swaggerDocument));
+router.use('/', swaggerUi.serve);
+router.get('/', swaggerUi.setup(null, { swaggerOptions: { url: '/api-docs/swagger.json' } }));
 
 module.exports = router;
